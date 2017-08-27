@@ -4,12 +4,12 @@ var w = window;
 
 //	adjustable variables
 
-var FRAMERATE = 24;
-var MAXFRAMES = 1;
+var FRAMERATE = 50;
+var MAXFRAMES = 5000;
 var MINRADIUS = 3;
-var MAXRADIUS = 150;
+var MAXRADIUS = 15;
 var GROWRATE = 1;
-var SPAWNRATE = 1;
+var SPAWNRATE = 10;
 var CIRCLEDISTANCE = 5;
 
 //	circle-packing variables
@@ -58,10 +58,26 @@ function init() {
 		var p = imgData.data[i];
 		if(p != 255) {
 			var curPixel = parseInt(i / 4);
-			nonWhitePixels.push(curPixel);
+			var newX = curPixel % svgwidth;
+			var newY = parseInt(curPixel/svgheight);
+			nonWhitePixels.push(new Point(newX, newY));
 
 			i = (curPixel + 1) * 4
 		}
+	}
+	// X Y coordinates of pixels from nonWhitePixels
+	//console.log(curPixel % 500 + " " + parseInt(curPixel/500));
+}
+var Point = function(x, y) {
+	this.x_ = x;
+	this.y_ = y;
+}
+
+Point.prototype.isEqual = function(otherP) {
+	if(this.x_ == otherP.x_ && this.y_ == otherP.y_) {
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -82,8 +98,6 @@ Circle.prototype.draw = function() {
 		this.firstDraw = false;
 		this.DOMobj.setAttributeNS(null, "cx", this.x_);
 		this.DOMobj.setAttributeNS(null, "cy", this.y_);
-		// this.DOMobj.setAttributeNS(null, "fill", "none");
-		// this.DOMobj.setAttributeNS(null, "stroke", "#000000");
 		if(colours.length > 0) {
 			this.DOMobj.setAttributeNS(null, "fill", colours[(colourIndex % colours.length)]);
 			colourIndex++;
@@ -102,25 +116,39 @@ Circle.prototype.grow = function() {
 
 function newCircle() {
 	var tempCircle = new Circle();
-	if(Circles.length > 0){
+
+	//	check if new circle is not created inside another existing circle
+	if(Circles.length > 0) {
 		for (var i = 0; i < Circles.length; i++) {
 			var c = Circles[i];
 			if(findDist(tempCircle.x_, tempCircle.y_, c.x_, c.y_) < (c.r_ + (CIRCLEDISTANCE + MINRADIUS))){
 				tempCircle.valid = false;
 				break;
-			} else if((tempCircle.x_ - MINRADIUS) < 0 || (tempCircle.x_ + MINRADIUS) > svgwidth || (tempCircle.y_ - MINRADIUS) < 0 || (tempCircle.y_ + MINRADIUS > svgheight)) {
-				tempCircle.valid = false;
-				break;
 			}
 		}
-	} else {
-		tempCircle.valid = true;
+	}
+	//	check if new circle is not created too close to edge
+	if((tempCircle.x_ - MINRADIUS) < 0 || (tempCircle.x_ + MINRADIUS) > svgwidth || (tempCircle.y_ - MINRADIUS) < 0 || (tempCircle.y_ + MINRADIUS > svgheight)) {
+		tempCircle.valid = false;
+	}
+	// 	check if inside non-white area
+	else if(tempCircle.valid) {
+		tempCircle.valid = false;
+		var pointOne = new Point(tempCircle.x_, tempCircle.y_);
+		for (var i = 0; i < nonWhitePixels.length; i++) {
+			var p = nonWhitePixels[i];
+
+			if(p.isEqual(pointOne)) {
+				tempCircle.valid = true;
+			}
+		}
 	}
 
 	if(tempCircle.valid) {
 		Circles.push(tempCircle);
+		//	console.log("new circle created");
 	} else {
-		console.log("attempted creation of colliding circle");
+		//console.log("attempted creation of colliding circle");
 	}
 }
 
