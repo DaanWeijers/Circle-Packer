@@ -5,9 +5,19 @@ html, body {
 }
 
 svg {
-	width: 250px;
-	height: 250px;
-	box-sizing: border-box;
-	border: 1px solid #999;
+	width: 500px;
+	height: 500px;
 	border-radius: 3px;
+	box-sizing: border-box;
+	margin: 50px;
+	border: 1px solid #ccc;
 }
+
+canvas {
+	width: 500px;
+	height: 500px;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+}
+
+#testimg { display: none; }

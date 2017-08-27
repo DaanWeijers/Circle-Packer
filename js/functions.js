@@ -1,23 +1,39 @@
+//	me being lazy
 var d = document;
 var w = window;
+
+//	adjustable variables
+
+var FRAMERATE = 24;
+var MAXFRAMES = 1;
+var MINRADIUS = 3;
+var MAXRADIUS = 150;
+var GROWRATE = 1;
+var SPAWNRATE = 1;
+var CIRCLEDISTANCE = 5;
+
+//	circle-packing variables
 var svg;
 var Circle;
 var Circles = [];
 
+//			colours of circles
 var colours = ["#D6FFBE", "#B4EEFF", "#FFB86D", "#D58EFF"];
 var colourIndex = 0;
 
+//	image canvas variables
+var canvas;
+var ctx;
+var imgData;
+var nonWhitePixels = [];
+
+//	temp
+var img;
+
+// 	other
 var stopBtn
 
 var frame = 1;
-
-var FRAMERATE = 24;
-var MAXFRAMES = 2500;
-var MINRADIUS = 3;
-var MAXRADIUS = 25;
-var GROWRATE = 1;
-var SPAWNRATE = 3;
-var CIRCLEDISTANCE = 2;
 
 function init() {
 	svg = d.getElementById("drawArea");
@@ -28,6 +44,25 @@ function init() {
 	stopBtn.addEventListener("click", stopAlgorithm);
 
 	svg.setAttribute("viewBox", "0 0 "+svgwidth+" "+svgheight);
+
+	canvas = d.getElementById("imageCanvas");
+	canvas.setAttribute("width", svgwidth);
+	canvas.setAttribute("height", svgheight);
+	ctx = canvas.getContext("2d");
+	img = d.getElementById("testimg");
+	ctx.drawImage(img, 0, 0);
+
+	imgData = ctx.getImageData(0, 0, svgwidth, svgheight);
+
+	for (var i = 0; i < imgData.data.length; i++) {
+		var p = imgData.data[i];
+		if(p != 255) {
+			var curPixel = parseInt(i / 4);
+			nonWhitePixels.push(curPixel);
+
+			i = (curPixel + 1) * 4
+		}
+	}
 }
 
 var Circle = function(){
@@ -73,6 +108,9 @@ function newCircle() {
 			if(findDist(tempCircle.x_, tempCircle.y_, c.x_, c.y_) < (c.r_ + (CIRCLEDISTANCE + MINRADIUS))){
 				tempCircle.valid = false;
 				break;
+			} else if((tempCircle.x_ - MINRADIUS) < 0 || (tempCircle.x_ + MINRADIUS) > svgwidth || (tempCircle.y_ - MINRADIUS) < 0 || (tempCircle.y_ + MINRADIUS > svgheight)) {
+				tempCircle.valid = false;
+				break;
 			}
 		}
 	} else {
@@ -97,7 +135,7 @@ function growCircles() {
 	for (var i = 0; i < Circles.length; i++) {
 		var c = Circles[i];
 		if(c.r_ < MAXRADIUS) {
-			if( (c.x_ - c.r_) < 0  || (c.x_ + c.r_) > svgwidth || (c.y_ - c.r_) < 0 || (c.y_ + c.r_) > svgheight ) {
+			if( (c.x_ - c.r_ - CIRCLEDISTANCE) < 0  || (c.x_ + c.r_ + CIRCLEDISTANCE)  > svgwidth || (c.y_ - c.r_ - CIRCLEDISTANCE) < 0 || (c.y_ + c.r_ + CIRCLEDISTANCE) > svgheight ) {
 				c.growing = false;
 			}
 			for (var j = 0; j < Circles.length; j++) {
