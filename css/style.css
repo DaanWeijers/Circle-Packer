@@ -4,13 +4,19 @@ html, body {
 	font-weight: 300;
 }
 
+.wrap {
+	margin: 50px;
+	position: relative;
+}
+
 svg {
 	width: 500px;
 	height: 500px;
 	border-radius: 3px;
 	box-sizing: border-box;
-	margin: 50px;
 	border: 1px solid #ccc;
+	position: relative;
+	top: 0; left: 0;
 }
 
 canvas {
@@ -18,6 +24,10 @@ canvas {
 	height: 500px;
 	border: 1px solid #ccc;
 	box-sizing: border-box;
+	position: absolute;
+	top: 0; left: 0;
+	z-index: -1;
+	opacity: 0.1;
 }
 
 #testimg { display: none; }
