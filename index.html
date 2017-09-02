@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/fonts.css">
 	<link rel="stylesheet" href="css/style.css">
 
 	<script src="js/functions.js"></script>
@@ -29,35 +30,39 @@
 					<input type="file" id="file" name="pic" accept="image/*">
 					<label for="file">Choose a file</label>
 				</p>
-				<h3>Colors <button id="addColor">+</button></h3>
-				<p class="color">
-					<button data-colorID="1">&times;</button>
-					<span data-colorID="1"></span>
-					<input type="text" class="colorVal" data-colorID="1" value="#000000">
-				</p>
+				<h3>Colors <a id="addColor" href="javascript:void(0)">+</a></h3>
+				<div id="colorContainer">
+					<p class="color" data-colorID="0">
+						<a class="remove" data-colorID="0" href="javascript:void(0)">&times;</a>
+						<span>
+							<span data-colorID="0" class="colorShow invalid"></span>
+							<input type="text" class="colorVal" data-colorID="0" value="#000000">
+						</span>
+					</p>
+				</div>
 
 				<h3>Other parameters</h3>
 				<p class="sliderInput">
 					<label for="minDia">Minimum Diameter <span class="val" data-slider="minDia">0</span></label>
-					<input type="range" id="minDia" min="1" max="50" value="1" step="1">
+					<input type="range" class="slider" id="minDia" min="2" max="50" value="2" step="1">
 				</p>
 				<p class="sliderInput">
 					<label for="maxDia">Maximum Diameter <span class="val" data-slider="maxDia">0</span></label>
-					<input type="range" id="maxDia" min="1" max="50" value="15" step="1">
+					<input type="range" class="slider" id="maxDia" min="1" max="100" value="30" step="1">
 				</p>
 				<p class="sliderInput">
 					<label for="cirDist">Minimum Circle Distance <span class="val" data-slider="cirDist">0</span></label>
-					<input type="range" id="cirDist" min="0" max="15" value="3" step="1">
+					<input type="range" class="slider" id="cirDist" min="0" max="15" value="3" step="1">
 				</p>
 				<p class="sliderInput">
 					<label for="spawnRate">Spawn Rate <span class="val" data-slider="spawnRate">0</span></label>
-					<input type="range" id="spawnRate" min="1" max="15" value="1" step="1">
+					<input type="range" class="slider" id="spawnRate" min="1" max="15" value="1" step="1">
 				</p>
 			</form>
 			<div class="btnSplit">
 				<button class="submit" href="javascript:void(0)" id="start">Start</button>
 				<button class="invisible submit ghost" href="javascript:void(0)" id="stop">Stop</button>
-				<button class="submit ghost" href="javascript:void(0)" id="export">Export</button>
+				<button class="submit" href="javascript:void(0)" id="export">Export</button>
 			</div>
 		</section>
 

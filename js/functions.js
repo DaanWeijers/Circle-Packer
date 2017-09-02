@@ -3,22 +3,37 @@ var d = document;
 var w = window;
 
 //	user-adjustable variables
-var FRAMERATE = 50;
-var MAXFRAMES = 1;
+var FRAMERATE = 24;
+var MAXFRAMES = 9999;
 var MINRADIUS = 1;
-var MAXRADIUS = 4;
+var MAXRADIUS = 7.5;
 var GROWRATE = 1;
-var SPAWNRATE = 15;
-var CIRCLEDISTANCE = 1;
+var SPAWNRATE = 1;
+var CIRCLEDISTANCE = 3;
 
 //	circle-packing variables
 var svg;
 var Circle;
 var Circles = [];
 
-//			colours of circles
-var colours = ["#000", "#000", "#000", "#000"];
-var colourIndex = 0;
+//	colors of circles
+var colors = ["#000000"];
+var colorIndex = 0;
+var colorInputs = [];
+var colorEls = [];
+var addColorBtn;
+var removeColorBtns = [];
+var colorIndex = 0;
+
+//	settings variables
+var colorsSet = ["#000000"];
+var minRadSet = 1;
+var maxRadSet = 7.5;
+var circleDistSet = 3;
+var spawnRateSet = 1;
+
+var sliders = [];
+var sliderVals = [];
 
 //	image canvas variables
 var canvas;
@@ -28,10 +43,13 @@ var pixelData = [];
 
 //	temp
 var img;
-var timing = [];
 
 // 	other
-var stopBtn
+var stopBtn, startBtn, exportBtn;
+var resizeTimer;
+var looping;
+var running = false;
+
 var frame = 1;
 var analysing = true;
 
@@ -46,6 +64,10 @@ function init() {
 	//stop functionality
 	stopBtn = d.getElementById("stop");
 	stopBtn.addEventListener("click", stopAlgorithm);
+	startBtn = d.getElementById("start");
+	startBtn.addEventListener("click", startAlgorithm);
+	exportBtn = d.getElementById("export");
+	exportBtn.addEventListener("click", exportSVG);
 
 	//initialise canvas
 	canvas = d.getElementById("imageCanvas");
@@ -69,6 +91,34 @@ function init() {
 			analysing = false;
 		}
 	}
+
+	// interface handlers
+	w.addEventListener("resize", function() {
+		clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(adjustLength, 250);
+	});
+
+	addColorBtn = d.getElementById("addColor");
+	addColorBtn.addEventListener("click", addColor);
+
+	sliders = d.getElementsByClassName("slider");
+	for (var i = 0; i < sliders.length; i++) {
+		var s = sliders[i];
+		s.addEventListener("input", function(e){
+			setForm(e);
+		});
+	}
+	sliderVals = d.getElementsByClassName("val");
+
+	d.onkeyup=function(e){
+		setForm(e);
+	}
+	// d.onmouseup=function(e){
+	// 	setForm(e);
+	// }
+	indexColor();
+	adjustLength();
+	setForm();
 }
 
 // 	Point object
@@ -119,9 +169,9 @@ Circle.prototype.draw = function() {
 		this.firstDraw = false;
 		this.DOMobj.setAttributeNS(null, "cx", this.x_);
 		this.DOMobj.setAttributeNS(null, "cy", this.y_);
-		if(colours.length > 0) {
-			this.DOMobj.setAttributeNS(null, "fill", colours[(colourIndex % colours.length)]);
-			colourIndex++;
+		if(colors.length > 0) {
+			this.DOMobj.setAttributeNS(null, "fill", colors[(colorIndex % colors.length)]);
+			colorIndex++;
 		}
 		svg.appendChild(this.DOMobj);
 	}
@@ -182,7 +232,6 @@ function drawCircles() {
 
 
 function growCircles() {
-	console.time("ding");
 	for (var i = 0; i < Circles.length; i++) {
 		var c = Circles[i];
 
@@ -215,28 +264,114 @@ function growCircles() {
 			c.growing = false;
 		}
 	}
-	// dance:
-	// for (var i = 0; i < pixelData.length; i++) {
-	// 	var p = pixelData[i];
-	// 	if(p.isWhite) {
-	// 		for (var j = 0; j < Circles.length; j++) {
-	// 			var c = Circles[j];
-	// 			if(c.growing) {
-	// 				if(findDist(p.x, p.y, c.x_, c.y_) < (c.r_ - GROWRATE)) {
-	// 					c.growing = false;
-	// 					break dance;
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
 
 	for (var i = 0; i < Circles.length; i++) {
 		Circles[i].grow();
 	}
-
-	console.timeEnd("ding");
 }
+
+//	————————————————
+// interface handling
+//	————————————————
+
+function addColor() {
+	colorIndex++;
+
+	for (var i = 0; i < colorEls.length; i++) {
+		colorInputs[i].setAttribute("value", colorsSet[i]);
+	}
+	var container = d.getElementById("colorContainer");
+	var curHTML = container.innerHTML;
+	container.innerHTML = "";
+	container.innerHTML = curHTML + "<p class='color' data-colorID='"+ colorIndex +"'>\n<a class='remove' data-colorID='"+ colorIndex +"' href='javascript:void(0)'>&times;</a>\n<span>\n<span data-colorID='"+ colorIndex +"' class='colorShow invalid'></span>\n	<input type='text' class='colorVal' data-colorID='"+ colorIndex +"' value='#000000'>\n</span>\n</p>";
+
+
+	indexColor();
+	adjustLength();
+}
+
+function removeColor() {
+	for (var i = 0; i < colorEls.length; i++) {
+		el = colorEls[i];
+		if(colorEls.length > 1){
+			if(el.getAttribute("data-colorID") == this.getAttribute("data-colorID")) {
+				el.parentNode.removeChild(el);
+			}
+		} else {
+			colorInputs[0].setAttribute("value", "#000000");
+		}
+	}
+	adjustLength();
+}
+
+function indexColor() {
+	removeColorBtns = d.getElementsByClassName("remove");
+	colorEls = d.getElementsByClassName("color");
+	colorInputs = d.getElementsByClassName("colorVal");
+
+	for (var i = 0; i < removeColorBtns.length; i++) {
+		removeColorBtns[i].addEventListener("click", removeColor);
+	}
+}
+
+function validateColors() {
+	for (var i = 0; i < colorInputs.length; i++) {
+		var el = colorInputs[i];
+		if (el.value.indexOf("#") >= 0) {
+			var stripped = el.value.split("#")[1];
+		} else {
+			stripped = el.value;
+		}
+		if(isHexaColor(stripped)) {
+			d.getElementsByClassName("colorShow")[i].setAttribute("style", "background: #" + stripped + ";");
+		} else {
+			d.getElementsByClassName("colorShow")[i].setAttribute("style", "");
+		}
+	}
+}
+
+function adjustLength() {
+	console.log("adjusted");
+	var contrLen = d.getElementsByClassName("controls")[0].getBoundingClientRect().height;
+	if(w.innerWidth > 1100) {
+		d.getElementsByClassName("view")[0].setAttribute("style", "height: "+ (contrLen + 100) + "px; max-height: inherit;")
+	} else {
+		d.getElementsByClassName("view")[0].setAttribute("style", "");
+	}
+}
+
+function setForm(e) {
+
+	for (var i = 0; i < colorInputs.length; i++) {
+		colorsSet[i] = colorInputs[i].value;
+		if(colorInputs[i].value.indexOf("#") >= 0) {
+			colorsSet[i] = colorInputs[i].value;
+		} else {
+			colorsSet[i] = "#" + colorInputs[i].value;
+		}
+	}
+
+	validateColors();
+
+	for (var i = 0; i < sliderVals.length; i++) {
+		var sv = sliderVals[i];
+		var s = sliders[i];
+		if(sv.getAttribute("data-slider") == sliders[i].getAttribute("id")){
+			sv.innerHTML = s.value;
+		}
+	}
+
+	minRadSet = sliders[0].value/2;
+	maxRadSet = sliders[1].value/2;
+	circleDistSet = parseInt(sliders[2].value);
+	spawnRateSet = sliders[3].value;
+
+}
+
+
+//	————————————————
+// other
+//	————————————————
 
 function findDist(x1, y1, x2, y2) {
 	return Math.sqrt(Math.pow(Math.abs(x1 - x2), 2) + Math.pow(Math.abs(y1 - y2), 2));
@@ -248,6 +383,12 @@ function ranNum(min, max) {
 	return Math.floor(Math.random() * (max - min)) + min;
 }
 
+function isHexaColor(sNum){
+	return (typeof sNum === "string") && sNum.length === 6
+	&& ! isNaN( parseInt(sNum, 16) );
+}
+
+
 function loop() {
 	if(!analysing) {
 		if(frame < MAXFRAMES) {
@@ -258,7 +399,6 @@ function loop() {
 			growCircles();
 			frame++;
 		} else {
-			//alert("max attempts reached");
 			clearInterval(looping);
 		}
 	}
@@ -266,9 +406,37 @@ function loop() {
 
 
 function stopAlgorithm() {
+	startBtn.classList.remove("invisible");
+	stopBtn.classList.add("invisible");
 	clearInterval(looping);
 }
+function startAlgorithm() {
+	Circles = [];
+	svg.innerHTML = '';
+	MINRADIUS = minRadSet;
+	MAXRADIUS = maxRadSet;
+	CIRCLEDISTANCE = circleDistSet;
+	SPAWNRATE = spawnRateSet;
+	colors = colorsSet;
 
-var looping = setInterval(loop, 1000/FRAMERATE);
+	console.log(MINRADIUS + " " + MAXRADIUS + " " + CIRCLEDISTANCE + " " + SPAWNRATE + " " + colors)
+
+	startBtn.classList.add("invisible");
+	stopBtn.classList.remove("invisible");
+
+	looping = setInterval(loop, 1000/FRAMERATE);
+}
+
+function exportSVG() {
+	var svgData = svg.outerHTML;
+	var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
+	var svgUrl = URL.createObjectURL(svgBlob);
+	var downloadLink = document.createElement("a");
+	downloadLink.href = svgUrl;
+	downloadLink.download = "circlepacker.svg";
+	document.body.appendChild(downloadLink);
+	downloadLink.click();
+	document.body.removeChild(downloadLink);
+}
 
 w.addEventListener("load", init);
