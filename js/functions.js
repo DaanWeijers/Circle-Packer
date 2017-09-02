@@ -3,12 +3,12 @@ var d = document;
 var w = window;
 
 //	user-adjustable variables
-var FRAMERATE = 24;
-var MAXFRAMES = 5000;
+var FRAMERATE = 50;
+var MAXFRAMES = 1;
 var MINRADIUS = 1;
-var MAXRADIUS = 15;
+var MAXRADIUS = 4;
 var GROWRATE = 1;
-var SPAWNRATE = 10;
+var SPAWNRATE = 15;
 var CIRCLEDISTANCE = 1;
 
 //	circle-packing variables
@@ -17,7 +17,7 @@ var Circle;
 var Circles = [];
 
 //			colours of circles
-var colours = ["#000"];
+var colours = ["#000", "#000", "#000", "#000"];
 var colourIndex = 0;
 
 //	image canvas variables
@@ -28,10 +28,12 @@ var pixelData = [];
 
 //	temp
 var img;
+var timing = [];
 
 // 	other
 var stopBtn
 var frame = 1;
+var analysing = true;
 
 function init() {
 	//initialise svg
@@ -64,7 +66,7 @@ function init() {
 		i = ((curPixel + 1) * 4)-1;
 
 		if(i == imgData.data.length - 1) {
-			console.log("Done analysing");
+			analysing = false;
 		}
 	}
 }
@@ -180,12 +182,13 @@ function drawCircles() {
 
 
 function growCircles() {
+	console.time("ding");
 	for (var i = 0; i < Circles.length; i++) {
 		var c = Circles[i];
 
 		//	check if circle doesn't exceed max radius
-		if(c.r_ < MAXRADIUS ) {
-			//	check if circle is not growing beyong edges of svg
+		if(c.r_ < MAXRADIUS && c.growing) {
+			//	check if circle is not growing beyond edges
 			if( (c.x_ - c.r_ - CIRCLEDISTANCE) < 0  || (c.x_ + c.r_ + CIRCLEDISTANCE)  > svgwidth || (c.y_ - c.r_ - CIRCLEDISTANCE) < 0 || (c.y_ + c.r_ + CIRCLEDISTANCE) > svgheight ) {
 				c.growing = false;
 				break;
@@ -208,9 +211,31 @@ function growCircles() {
 					}
 				}
 			}
-			c.grow();
+		} else {
+			c.growing = false;
 		}
 	}
+	// dance:
+	// for (var i = 0; i < pixelData.length; i++) {
+	// 	var p = pixelData[i];
+	// 	if(p.isWhite) {
+	// 		for (var j = 0; j < Circles.length; j++) {
+	// 			var c = Circles[j];
+	// 			if(c.growing) {
+	// 				if(findDist(p.x, p.y, c.x_, c.y_) < (c.r_ - GROWRATE)) {
+	// 					c.growing = false;
+	// 					break dance;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	for (var i = 0; i < Circles.length; i++) {
+		Circles[i].grow();
+	}
+
+	console.timeEnd("ding");
 }
 
 function findDist(x1, y1, x2, y2) {
@@ -224,16 +249,18 @@ function ranNum(min, max) {
 }
 
 function loop() {
-	if(frame < MAXFRAMES) {
-		for (var i = 0; i < SPAWNRATE; i++) {
-			newCircle();
+	if(!analysing) {
+		if(frame < MAXFRAMES) {
+			for (var i = 0; i < SPAWNRATE; i++) {
+				newCircle();
+			}
 			drawCircles();
 			growCircles();
+			frame++;
+		} else {
+			//alert("max attempts reached");
+			clearInterval(looping);
 		}
-		frame++;
-	} else {
-		alert("max attempts reached");
-		clearInterval(looping);
 	}
 }
 
