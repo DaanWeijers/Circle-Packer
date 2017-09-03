@@ -16,7 +16,7 @@ body {
 	position: relative;
 
 	width: 90vw;
-	margin: 25px auto;
+	margin: 25px auto 0;
 
 	max-width: 650px;
 }
@@ -233,6 +233,27 @@ button:hover { cursor: pointer; }
 	display: none !important;
 }
 
+#file {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+label[for='file'] {
+	background: #000;
+	width: 100%;
+	border-radius: 3px;
+	height: 50px;
+	text-align: center;
+	box-sizing: border-box;
+	font-weight: 600;
+	color: #fff;
+	padding-top: 16px;
+}
+
 #testimg { display: none; }
 
 @media (min-width: 575px) {
@@ -243,8 +264,11 @@ button:hover { cursor: pointer; }
 
 	.color a:hover, #addColor:hover {
 		transform: rotate(90deg) scale(0.75);
-		transform-origin: center ;
+		transform-origin: center;
+		background: #bc0043;
 	}
+
+	label[for='file']:hover { cursor: pointer; background: #bc0043; }
 }
 
 @media (min-width: 720px) {
@@ -263,6 +287,7 @@ button:hover { cursor: pointer; }
 	}
 	.view {
 		float: left;
+		margin-bottom: 50px;
 	}
 	.controls {
 		float: right;
@@ -271,6 +296,7 @@ button:hover { cursor: pointer; }
 		border-radius: 0 5px 5px 0;
 		box-shadow: inset 4px 0px 18px rgba(188, 0, 67, 0.15), inset 1px 0 0 rgba(188,0,67,0.05), 5px 0 20px rgb(188, 0, 67);
 		padding-top: 25px;
+		margin-bottom: 0;
 	}
 
 	.controls::before {
@@ -343,7 +369,7 @@ input[type=range]::-moz-range-thumb {
 	height: 24px;
 	width: 24px;
 	border-radius: 50px;
-	background: #bc0043;
+	background: #000;
 	cursor: pointer;
 }
 input[type=range]::-ms-track {
@@ -371,7 +397,7 @@ input[type=range]::-ms-thumb {
 	height: 24px;
 	width: 24px;
 	border-radius: 50px;
-	background: #bc0043;
+	background: #000;
 	cursor: pointer;
 	height: 7px;
 }
