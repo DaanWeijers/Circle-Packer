@@ -486,12 +486,12 @@ var start = function() {
 		var svgData = svg.outerHTML;
 		var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
 		var svgUrl = URL.createObjectURL(svgBlob);
-		var downloadLink = document.createElement("a");
+		var downloadLink = d.createElement("a");
 		downloadLink.href = svgUrl;
 		downloadLink.download = "circlepacker.svg";
-		document.body.appendChild(downloadLink);
+		d.body.appendChild(downloadLink);
 		downloadLink.click();
-		document.body.removeChild(downloadLink);
+		d.body.removeChild(downloadLink);
 	}
 
 	w.addEventListener("load", init);
