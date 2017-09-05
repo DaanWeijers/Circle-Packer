@@ -126,7 +126,7 @@ var start = function() {
 	}
 
 	// 	Point object
-	var Point = function(x, y) {
+	function Point(x, y) {
 		this.x_ = x;
 		this.y_ = y;
 	}
@@ -140,7 +140,7 @@ var start = function() {
 		}
 	}
 
-	var Pixel = function(x, y, r, g, b, a) {
+	function Pixel(x, y, r, g, b, a) {
 		this.x = x;
 		this.y = y;
 		this.r = r;
@@ -155,7 +155,7 @@ var start = function() {
 	}
 
 	//	Circle object
-	var Circle = function(){
+	function Circle(){
 		this.x_ = ranNum(0,svgwidth);
 		this.y_ = ranNum(0,svgheight);
 		this.r_ = MINRADIUS;
