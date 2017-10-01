@@ -289,6 +289,7 @@ var start = function() {
 		container.innerHTML = "";
 		container.innerHTML = curHTML + "<p class='color' data-colorID='"+ colorIndex +"'>\n<a class='remove' data-colorID='"+ colorIndex +"' href='javascript:void(0)'>&times;</a>\n<span>\n<span data-colorID='"+ colorIndex +"' class='colorShow invalid'></span>\n	<input type='text' class='colorVal' data-colorID='"+ colorIndex +"' value='#000000'>\n</span>\n</p>";
 
+		ColorInput.reset();
 
 		indexColor();
 		adjustLength();
