@@ -126,7 +126,7 @@ var start = function() {
 	}
 
 	// 	Point object
-	var Point = function(x, y) {
+	function Point(x, y) {
 		this.x_ = x;
 		this.y_ = y;
 	}
@@ -140,7 +140,7 @@ var start = function() {
 		}
 	}
 
-	var Pixel = function(x, y, r, g, b, a) {
+	function Pixel(x, y, r, g, b, a) {
 		this.x = x;
 		this.y = y;
 		this.r = r;
@@ -155,7 +155,7 @@ var start = function() {
 	}
 
 	//	Circle object
-	var Circle = function(){
+	function Circle(){
 		this.x_ = ranNum(0,svgwidth);
 		this.y_ = ranNum(0,svgheight);
 		this.r_ = MINRADIUS;
@@ -289,6 +289,7 @@ var start = function() {
 		container.innerHTML = "";
 		container.innerHTML = curHTML + "<p class='color' data-colorID='"+ colorIndex +"'>\n<a class='remove' data-colorID='"+ colorIndex +"' href='javascript:void(0)'>&times;</a>\n<span>\n<span data-colorID='"+ colorIndex +"' class='colorShow invalid'></span>\n	<input type='text' class='colorVal' data-colorID='"+ colorIndex +"' value='#000000'>\n</span>\n</p>";
 
+		ColorInput.reset();
 
 		indexColor();
 		adjustLength();
